@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   Box,
   Typography,
@@ -30,19 +30,19 @@ const fetchCustomers = async () => {
 const CustomersPage = () => {
   const [tab, setTab] = useState(0)
   const [searchTerm, setSearchTerm] = useState('')
+  const [customers, setCustomers] = useState([])
 
   const {
     data = [],
     isLoading,
     error
   } = useQuery({
-    queryKey: ['orders'],
+    queryKey: ['customers'], // Changed from 'orders' to 'customers'
     queryFn: fetchCustomers
   })
   console.log('data', data)
 
   const filteredcustomers = data?.filter(cust => {
-    // Safely check if properties exist before calling methods on them
     const nameMatch = cust.name ? cust.name.toLowerCase().includes(searchTerm.toLowerCase()) : false
     const emailMatch = cust.email ? cust.email.toLowerCase().includes(searchTerm.toLowerCase()) : false
 
@@ -99,6 +99,11 @@ const CustomersPage = () => {
             </TableRow>
           </TableHead>
           <TableBody>
+            {isLoading && (
+              <TableRow>
+                <TableCell colSpan={6}>Loading...</TableCell>
+              </TableRow>
+            )}
             {filteredcustomers.map((cust, idx) => (
               <TableRow key={idx}>
                 <TableCell variant='caption' color='text.secondary' sx={{ fontWeight: '700', fontSize: '15px' }}>
@@ -108,7 +113,7 @@ const CustomersPage = () => {
                 <TableCell sx={{ fontSize: '15px' }}>
                   {cust.createdAt ? new Date(cust.createdAt).toLocaleDateString() : 'N/A'}
                 </TableCell>
-                <TableCell sx={{ fontSize: '15px' }}>{cust.orders.length}</TableCell>
+                <TableCell sx={{ fontSize: '15px' }}>{cust.orders?.length || 0}</TableCell>
                 <TableCell>
                   <Switch checked={cust.isAdmin} />
                 </TableCell>
