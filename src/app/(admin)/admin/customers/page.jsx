@@ -21,8 +21,6 @@ import {
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 
-
-
 const fetchCustomers = async () => {
   const res = await fetch('/api/customers')
   if (!res.ok) throw new Error('Network response was not ok')
@@ -44,10 +42,11 @@ const CustomersPage = () => {
   console.log('data', data)
 
   const filteredcustomers = data?.filter(cust => {
-    const matchesSearch =
-      cust.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      cust.email.toLowerCase().includes(searchTerm.toLowerCase())
+    // Safely check if properties exist before calling methods on them
+    const nameMatch = cust.name ? cust.name.toLowerCase().includes(searchTerm.toLowerCase()) : false
+    const emailMatch = cust.email ? cust.email.toLowerCase().includes(searchTerm.toLowerCase()) : false
 
+    const matchesSearch = nameMatch || emailMatch || searchTerm === ''
     const matchesTab = tab === 0 || (tab === 1 && cust.isAdmin) || (tab === 2 && !cust.isAdmin)
 
     return matchesSearch && matchesTab
